@@ -203,14 +203,43 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* Music Toggle Button */
+        #musicToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 24px;
+        }
+        #musicToggle.paused {
+            background: rgba(255, 255, 255, 0.6);
+            filter: grayscale(100%);
+        }
+        #musicToggle:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
 
-    <!-- Background Music -->
-    <audio id="bgMusic" loop>
+    <!-- Background Music (Updated with Preload) -->
+    <audio id="bgMusic" preload="auto" loop>
         <source src="Perfect-632403-mobiles24.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Music Toggle Button -->
+    <button id="musicToggle" class="paused" title="Toggle Music">🔇</button>
 
     <!-- Refined Envelope Overlay -->
     <div id="envelope-overlay">
@@ -365,7 +394,83 @@
         </div>
     </section>
 
-    
+    <!-- AI Wishes Section (Gemini Powered) -->
+    <section id="wishes" class="py-24 bg-green-50 px-6 relative overflow-hidden">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-yellow-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+
+        <div class="max-w-4xl mx-auto relative z-10">
+            <h2 class="font-sacramento text-6xl text-center mb-4 text-gray-800">Wedding Wish Assistant</h2>
+            <p class="text-center text-gray-500 tracking-widest uppercase text-xs mb-12">Powered by AI Magic ✨</p>
+            
+            <div class="bg-white rounded-[40px] shadow-xl p-8 md:p-12 border border-white/50 backdrop-blur-sm">
+                <div class="grid md:grid-cols-2 gap-12">
+                    
+                    <!-- Controls -->
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-500">I am their...</label>
+                            <select id="relation" class="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-green-200 outline-none transition cursor-pointer">
+                                <option value="Friend">Friend</option>
+                                <option value="Best Friend">Best Friend</option>
+                                <option value="Cousin">Cousin</option>
+                                <option value="Sibling">Sibling</option>
+                                <option value="Colleague">Colleague</option>
+                                <option value="Relative">Relative</option>
+                                <option value="Well Wisher">Well Wisher</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-500">Vibe</label>
+                            <select id="tone" class="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-green-200 outline-none transition cursor-pointer">
+                                <option value="Heartfelt & Emotional">Heartfelt & Emotional ❤️</option>
+                                <option value="Short & Sweet">Short & Sweet 🍬</option>
+                                <option value="Funny & Witty">Funny & Witty 😄</option>
+                                <option value="Formal & Elegant">Formal & Elegant 🎩</option>
+                                <option value="Bollywood Style">Bollywood Style 🎬</option>
+                                <option value="Blessings & Religious">Blessings 🙏</option>
+                            </select>
+                        </div>
+
+                        <button onclick="generateWish()" id="generateBtn" class="w-full py-4 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-semibold tracking-wider uppercase text-sm transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg flex justify-center items-center gap-2">
+                            <span>Draft Message</span>
+                            <span class="text-lg">✨</span>
+                        </button>
+                    </div>
+
+                    <!-- Output -->
+                    <div class="flex flex-col h-full bg-gray-50 rounded-2xl p-6 relative group">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="copyWish()" class="p-2 bg-white rounded-full shadow-sm hover:bg-gray-100 text-gray-500" title="Copy">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                        </div>
+
+                        <div id="loading" class="hidden absolute inset-0 bg-gray-50/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-2xl">
+                            <div class="loader mb-3"></div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Drafting...</span>
+                        </div>
+
+                        <div class="flex-grow flex flex-col justify-center">
+                            <p id="wishOutput" class="text-gray-600 italic text-lg leading-relaxed text-center">
+                                "Select your relationship and vibe to generate a personalized wedding wish for Rinki & Somnath."
+                            </p>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-200 flex justify-between items-center">
+                             <span class="text-[10px] uppercase tracking-widest text-gray-400">AI Draft</span>
+                             <button onclick="translateToBengali()" id="translateBtn" class="text-xs font-bold text-green-700 hover:text-green-800 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                                Translate to Bengali
+                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <footer class="py-20 bg-gray-900 text-white text-center px-6">
         <div class="font-sacramento text-5xl mb-6">Rinki & Somnath</div>
@@ -405,14 +510,49 @@
             link.addEventListener('click', () => mobileMenu.classList.remove('active'));
         });
 
-        // Envelope Logic
+        // --- MUSIC LOGIC (Samsung Friendly) ---
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        let isPlaying = false;
+
+        function playMusic() {
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                musicToggle.innerHTML = '🎵';
+                musicToggle.classList.remove('paused');
+                musicToggle.title = "Pause Music";
+            }).catch(e => {
+                console.log("Autoplay blocked, waiting for interaction", e);
+                // Keep button in muted state so user can click it
+            });
+        }
+
+        function pauseMusic() {
+            bgMusic.pause();
+            isPlaying = false;
+            musicToggle.innerHTML = '🔇';
+            musicToggle.classList.add('paused');
+            musicToggle.title = "Play Music";
+        }
+
+        musicToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering other clicks
+            if (isPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        });
+
+        // Envelope Logic & Auto-Play Attempt
         const invitationStarter = document.getElementById('invitationStarter');
         const overlay = document.getElementById('envelope-overlay');
-        const bgMusic = document.getElementById('bgMusic');
 
         invitationStarter.addEventListener('click', () => {
             invitationStarter.classList.add('open');
-            bgMusic.play().catch(e => console.log("Audio requires interaction", e));
+            
+            // Try to play music on envelope click
+            playMusic();
 
             // Wait for letter animation to complete before revealing site
             setTimeout(() => {
@@ -453,8 +593,6 @@
         function openLightbox(src) {
             lightboxImg.src = src;
             lightbox.classList.add('active');
-            // Small timeout to allow display:block to apply before animating opacity if needed, 
-            // but CSS transition handles it well. Added simple scale effect.
             setTimeout(() => {
                 lightboxImg.classList.remove('scale-95');
                 lightboxImg.classList.add('scale-100');
@@ -479,7 +617,6 @@
                 contents: [{ parts: [{ text: prompt }] }]
             };
 
-            // Exponential backoff strategy
             const delays = [1000, 2000, 4000];
             
             for (let i = 0; i <= delays.length; i++) {
@@ -507,7 +644,6 @@
             const output = document.getElementById('wishOutput');
             const loader = document.getElementById('loading');
             
-            // Show loader
             loader.classList.remove('hidden');
             
             const prompt = `Write a short, engaging wedding wish (max 40 words) for Rinki and Somnath's wedding on March 4th 2026. The wish is from a "${relation}" and the tone should be "${tone}". Mention the couple's names. Do not include quotes around the text.`;
